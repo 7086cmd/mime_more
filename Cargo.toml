@@ -2,6 +2,7 @@
 name = "mime_more"
 version = "0.1.0"
 edition = "2021"
+exclude = [".idea/*"]
 
 [dependencies]
 mime = "0.3.17"
