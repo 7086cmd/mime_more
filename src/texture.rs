@@ -1,4 +1,3 @@
-use std::cmp::min;
 
 #[cfg(feature = "texture")]
 #[cfg_attr(
@@ -15,6 +14,7 @@ pub fn is_texture_std(data: &[u8]) -> bool {
     doc = "Checks if the data is a texture. This function is faster in large files than `is_texture_std`, but it can also be slower in some cases."
 )]
 pub fn is_texture_manual(data: &[u8], min_infer_length: i32) -> bool {
+    use std::cmp::min;
     let min_infer_length = min_infer_length as usize;
     let mut i = 0;
     while i < min(min_infer_length, data.len()) {

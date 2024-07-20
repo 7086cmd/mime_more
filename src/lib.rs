@@ -130,7 +130,7 @@ impl<'a> PartialEq<&'a str> for Mime {
 
 /// Guesses the MIME type from the extension and content. It is a combination of `from_ext` and `from_content`, and set the priority of `from_content` higher than `from_ext`.
 /// If the function can't guess the MIME type, it will return `application/octet-stream` if the feature `texture` is disabled, otherwise it will return `text/plain` if the data is a texture or `application/octet-stream` if the data is not a texture.
-fn from_ext_and_content(ext: &str, data: &[u8]) -> anyhow::Result<Mime> {
+pub fn from_ext_and_content(ext: &str, #[cfg(feature = "infer")] data: &[u8]) -> anyhow::Result<Mime> {
     #[cfg(feature = "extension")]
     if let Ok(guessed) = Mime::from_ext(ext) {
         return Ok(guessed);
