@@ -5,10 +5,15 @@
 //!
 //! This crate was born out of a discussion of the behaviour of MIME inferencing in the [Rolldown](https://github.com/rolldown/rolldown) project Data URLs.
 
+#[cfg(feature = "dataurl")]
+pub mod dataurl;
 mod light_guess;
 mod magic;
-mod texture;
+pub mod texture;
 mod utils;
+
+#[cfg(feature = "dataurl")]
+pub use crate::dataurl::Dataurl;
 
 use mime::Mime as MimeType;
 use std::str::FromStr;
@@ -21,7 +26,7 @@ pub struct Mime {
 
 impl Mime {
     pub fn new(mime: MimeType) -> Self {
-        Self { mime: mime }
+        Self { mime }
     }
 
     #[cfg(feature = "extension")]
@@ -95,10 +100,15 @@ impl Mime {
         doc = "Check the file is a texture or not. It is useful in the case of handling texture files."
     )]
     pub fn is_texture(self, data: &[u8]) -> bool {
-        if data.len() == 0 { true }
-        else if texture::is_texture_mime(&self.mime) { true }
-        else if texture::is_texture_std(data) { true }
-        else { false }
+        if data.len() == 0 {
+            true
+        } else if texture::is_texture_mime(&self.mime) {
+            true
+        } else if texture::is_texture_std(data) {
+            true
+        } else {
+            false
+        }
     }
 }
 
@@ -130,7 +140,10 @@ impl<'a> PartialEq<&'a str> for Mime {
 
 /// Guesses the MIME type from the extension and content. It is a combination of `from_ext` and `from_content`, and set the priority of `from_content` higher than `from_ext`.
 /// If the function can't guess the MIME type, it will return `application/octet-stream` if the feature `texture` is disabled, otherwise it will return `text/plain` if the data is a texture or `application/octet-stream` if the data is not a texture.
-pub fn from_ext_and_content(ext: &str, #[cfg(feature = "infer")] data: &[u8]) -> anyhow::Result<Mime> {
+pub fn from_ext_and_content(
+    ext: &str,
+    #[cfg(feature = "infer")] data: &[u8],
+) -> anyhow::Result<Mime> {
     #[cfg(feature = "extension")]
     if let Ok(guessed) = Mime::from_ext(ext) {
         return Ok(guessed);
@@ -142,15 +155,13 @@ pub fn from_ext_and_content(ext: &str, #[cfg(feature = "infer")] data: &[u8]) ->
     }
 
     #[cfg(feature = "infer")]
-    if let inferred = Mime::from_content(data)? {
+    if let Ok(inferred) = Mime::from_content(data) {
         return Ok(inferred);
     }
 
     #[cfg(feature = "texture")]
     if texture::is_texture_std(data) {
-        return Ok(
-            Mime::new(mime::TEXT_PLAIN)
-        )
+        return Ok(Mime::new(mime::TEXT_PLAIN));
     }
 
     Ok(Mime::new(mime::APPLICATION_OCTET_STREAM))
