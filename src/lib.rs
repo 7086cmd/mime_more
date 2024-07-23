@@ -79,9 +79,9 @@ impl Mime {
         }
     }
 
-    #[cfg(feature = "infer")]
+    #[cfg(feature = "magic")]
     #[cfg_attr(
-        feature = "infer",
+        feature = "magic",
         doc = "Guesses the MIME type from the content via [`infer`](https://docs.rs/infer/latest/infer/). It infers the MIME code via the Magic Number, which is useful in customized extensions."
     )]
     pub fn from_content(data: &[u8]) -> anyhow::Result<Self> {
@@ -142,7 +142,7 @@ impl<'a> PartialEq<&'a str> for Mime {
 /// If the function can't guess the MIME type, it will return `application/octet-stream` if the feature `texture` is disabled, otherwise it will return `text/plain` if the data is a texture or `application/octet-stream` if the data is not a texture.
 pub fn from_ext_and_content(
     ext: &str,
-    #[cfg(feature = "infer")] data: &[u8],
+    #[cfg(feature = "magic")] data: &[u8],
 ) -> anyhow::Result<Mime> {
     #[cfg(feature = "extension")]
     if let Ok(guessed) = Mime::from_ext(ext) {
@@ -154,7 +154,7 @@ pub fn from_ext_and_content(
         return Ok(guessed_light);
     }
 
-    #[cfg(feature = "infer")]
+    #[cfg(feature = "magic")]
     if let Ok(inferred) = Mime::from_content(data) {
         return Ok(inferred);
     }

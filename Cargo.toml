@@ -2,7 +2,7 @@
 name = "mime_more"
 description = "A library for better MIME function integrations."
 license = "MIT"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 include = [
     "**/*.rs",
@@ -29,7 +29,7 @@ magic = ["infer"]
 extension = ["mime_guess"]
 extension-light = []
 texture = []
-dataurl = ["extension-light", "infer", "texture", "base64", "urlencoding"]
+dataurl = ["extension-light", "magic", "texture", "base64", "urlencoding"]
 
 [[bench]]
 name = "function_benchmark"
