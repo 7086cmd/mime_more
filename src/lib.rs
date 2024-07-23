@@ -12,6 +12,7 @@ mod magic;
 pub mod texture;
 mod utils;
 
+use std::path::Path;
 #[cfg(feature = "dataurl")]
 pub use crate::dataurl::Dataurl;
 
@@ -151,6 +152,36 @@ pub fn from_ext_and_content(
 
     #[cfg(feature = "extension-light")]
     if let Ok(guessed_light) = Mime::from_ext_light(ext) {
+        return Ok(guessed_light);
+    }
+
+    #[cfg(feature = "magic")]
+    if let Ok(inferred) = Mime::from_content(data) {
+        return Ok(inferred);
+    }
+
+    #[cfg(feature = "texture")]
+    if texture::is_texture_std(data) {
+        return Ok(Mime::new(mime::TEXT_PLAIN));
+    }
+
+    Ok(Mime::new(mime::APPLICATION_OCTET_STREAM))
+}
+
+
+/// Guesses the MIME type from the path and content. It is a combination of `from_path` and `from_content`, and set the priority of `from_content` higher than `from_path`.
+/// If the function can't guess the MIME type, it will return `application/octet-stream` if the feature `texture` is disabled, otherwise it will return `text/plain` if the data is a texture or `application/octet-stream` if the data is not a texture.
+pub fn from_path_and_content(
+    path: &Path,
+    #[cfg(feature = "magic")] data: &[u8],
+) -> anyhow::Result<Mime> {
+    #[cfg(feature = "extension")]
+    if let Ok(guessed) = Mime::from_path(path) {
+        return Ok(guessed);
+    }
+
+    #[cfg(feature = "extension-light")]
+    if let Ok(guessed_light) = Mime::from_path_light(path) {
         return Ok(guessed_light);
     }
 

@@ -2,7 +2,7 @@
 name = "mime_more"
 description = "A library for better MIME function integrations."
 license = "MIT"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2021"
 include = [
     "**/*.rs",
